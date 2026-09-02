@@ -1,82 +1,49 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Acceso</title>
-  <!-- Configuración PWA para iOS y Android -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Acceso">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f2f2f7; text-align: center; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 350px; margin: auto; }
-    input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
-    button { width: 95%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; color: white; background: #007aff; }
-    button:active { opacity: 0.8; }
-    .p2 { background: #34c759; }
-    #status { margin-top: 15px; font-size: 14px; font-weight: 500; min-height: 20px; color: #333; }
-  </style>
-</head>
-<body>
-
-<div class="card">
-  <h2>Control de Acceso</h2>
-  <input type="text" id="usuario" placeholder="Usuario">
-  <input type="password" id="clave" placeholder="Contraseña">
-  
-  <button onclick="enviarComando('1')">ENTRADA</button>
-  <button class="p2" onclick="enviarComando('2')">SALIDA</button>
-
-  <div id="status"></div>
-</div>
-
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlYnHcFv3xLIM4CRw04e2a4sMqAx_uguBTxVIlMvI7OmuyMFNqpBTRkieT7LLQqPAZKA/exec";
 
-  // Cargar credenciales guardadas al abrir (Equivalente a Screen1.Initialize / TinyDB)
   window.onload = () => {
     document.getElementById('usuario').value = localStorage.getItem('usuario') || '';
     document.getElementById('clave').value = localStorage.getItem('clave') || '';
   };
 
-  async function enviarComando(puerta) {
-    const user = document.getElementById('usuario').value;
-    const pass = document.getElementById('clave').value;
-    const statusDiv = document.getElementById('status');
+  async function enviarComando(puerta, nombrePuerta) {
+    const user = document.getElementById('usuario').value.trim();
+    const pass = document.getElementById('clave').value.trim();
 
     if (!user || !pass) {
       mostrarStatus("Completa usuario y clave");
       return;
     }
 
-    mostrarStatus("Enviando petición...");
+    mostrarStatus("Verificando credenciales...");
 
     try {
+      // Enviamos como URLSearchParams para poder leer la respuesta directa del Apps Script
       const response = await fetch(SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors", // Para evitar bloqueos CORS con Google Apps Script
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario: user, clave: pass, puerta: puerta })
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ usuario: user, clave: pass, puerta: puerta })
       });
 
-      // Guardar credenciales en el teléfono (Equivalente a TinyDB)
-      localStorage.setItem('usuario', user);
-      localStorage.setItem('clave', pass);
+      const textoRespuesta = await response.text();
 
-      mostrarStatus("Petición enviada correctamente");
+      // Evaluamos el contenido de la respuesta de Google Sheets
+      if (textoRespuesta.includes("OK") || response.ok) {
+        localStorage.setItem('usuario', user);
+        localStorage.setItem('clave', pass);
+        mostrarStatus("Petición enviada a " + nombrePuerta);
+      } else {
+        mostrarStatus("Error de autenticación: usuario o clave incorrectos");
+      }
     } catch (error) {
-      mostrarStatus("Error de conexión: " + error.message);
+      // Si el script redirige y da CORS, hacemos un fallback seguro
+      mostrarStatus("Error al validar credenciales");
     }
   }
 
   function mostrarStatus(texto) {
     const statusDiv = document.getElementById('status');
     statusDiv.innerText = texto;
-    // Borrar mensaje a los 5 segundos (Equivalente al Clock1)
     setTimeout(() => { statusDiv.innerText = ""; }, 5000);
   }
 </script>
-
-</body>
-</html>
