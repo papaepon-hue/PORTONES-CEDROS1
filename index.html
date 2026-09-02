@@ -1,3 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Control de Acceso</title>
+
+  <!-- PWA Meta Tags para iOS & Android -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Acceso">
+  <meta name="theme-color" content="#1c1c1e">
+
+  <!-- Apple Touch Icon (Ícono SVG encodeado como Data URI) -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23007aff'><rect width='512' height='512' rx='100' fill='%231c1c1e'/><path fill='%23ffffff' d='M208 80H112c-17.7 0-32 14.3-32 32v288c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V112c0-17.7-14.3-32-32-32zm-32 240c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16zm224-240H304c-17.7 0-32 14.3-32 32v288c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V112c0-17.7-14.3-32-32-32zm-32 240c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z'/></svg>">
+
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f2f2f7;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #1c1c1e;
+    }
+    .card {
+      background: #ffffff;
+      padding: 28px 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #000;
+    }
+    .input-group {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+    .input-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8e8e93;
+      text-transform: uppercase;
+      margin-left: 4px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e5e5ea;
+      border-radius: 12px;
+      font-size: 16px;
+      background-color: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #007aff;
+      background-color: #fff;
+    }
+    .btn-container {
+      margin-top: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: #007aff;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,122,255,0.25);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    button.p2 {
+      background-color: #34c759;
+      box-shadow: 0 4px 12px rgba(52,199,89,0.25);
+    }
+    button:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    #status {
+      margin-top: 18px;
+      font-size: 14px;
+      font-weight: 500;
+      min-height: 20px;
+      color: #007aff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Control de Acceso</h2>
+  
+  <div class="input-group">
+    <label>Usuario</label>
+    <input type="text" id="usuario" placeholder="Ingresá tu usuario" autocomplete="username">
+  </div>
+  
+  <div class="input-group">
+    <label>Contraseña</label>
+    <input type="password" id="clave" placeholder="Ingresá tu clave" autocomplete="current-password">
+  </div>
+  
+  <div class="btn-container">
+    <button onclick="enviarComando('1', 'PORTON SALIDA')">PORTON SALIDA</button>
+    <button class="p2" onclick="enviarComando('2', 'PORTON ENTRADA')">PORTON ENTRADA</button>
+  </div>
+
+  <div id="status"></div>
+</div>
+
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzlYnHcFv3xLIM4CRw04e2a4sMqAx_uguBTxVIlMvI7OmuyMFNqpBTRkieT7LLQqPAZKA/exec";
 
@@ -47,3 +178,6 @@
     setTimeout(() => { statusDiv.innerText = ""; }, 5000);
   }
 </script>
+
+</body>
+</html>
