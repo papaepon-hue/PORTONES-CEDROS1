@@ -148,18 +148,15 @@
 
     mostrarStatus("Verificando credenciales...");
 
-    try {
-      // Enviamos como URLSearchParams para poder leer la respuesta directa del Apps Script
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ usuario: user, clave: pass, puerta: puerta })
-      });
+    // Construimos la URL con parámetros GET
+    const urlConParametros = `${SCRIPT_URL}?usuario=${encodeURIComponent(user)}&clave=${encodeURIComponent(pass)}&puerta=${encodeURIComponent(puerta)}`;
 
+    try {
+      const response = await fetch(urlConParametros, { method: "GET" });
       const textoRespuesta = await response.text();
 
-      // Evaluamos el contenido de la respuesta de Google Sheets
-      if (textoRespuesta.includes("OK") || response.ok) {
+      // Verificamos si la respuesta enviada por Apps Script contiene "OK"
+      if (textoRespuesta.includes("OK")) {
         localStorage.setItem('usuario', user);
         localStorage.setItem('clave', pass);
         mostrarStatus("Petición enviada a " + nombrePuerta);
@@ -167,8 +164,7 @@
         mostrarStatus("Error de autenticación: usuario o clave incorrectos");
       }
     } catch (error) {
-      // Si el script redirige y da CORS, hacemos un fallback seguro
-      mostrarStatus("Error al validar credenciales");
+      mostrarStatus("Error de conexión con el servidor");
     }
   }
 
