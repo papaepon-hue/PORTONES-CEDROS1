@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Control de Acceso</title>
 
-  <!-- PWA Meta Tags para iOS & Android -->
+  <!-- PWA Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Acceso">
   <meta name="theme-color" content="#1c1c1e">
 
-  <!-- Apple Touch Icon (Ícono SVG encodeado como Data URI) -->
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23007aff'><rect width='512' height='512' rx='100' fill='%231c1c1e'/><path fill='%23ffffff' d='M208 80H112c-17.7 0-32 14.3-32 32v288c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V112c0-17.7-14.3-32-32-32zm-32 240c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16zm224-240H304c-17.7 0-32 14.3-32 32v288c0 17.7 14.3 32 32 32h96c17.7 0 32-14.3 32-32V112c0-17.7-14.3-32-32-32zm-32 240c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z'/></svg>">
 
   <style>
@@ -100,10 +99,12 @@
     #status {
       margin-top: 18px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       min-height: 20px;
       color: #007aff;
     }
+    .status-error { color: #ff3b30 !important; }
+    .status-success { color: #34c759 !important; }
   </style>
 </head>
 <body>
@@ -142,36 +143,45 @@
     const pass = document.getElementById('clave').value.trim();
 
     if (!user || !pass) {
-      mostrarStatus("Completa usuario y clave");
+      mostrarStatus("Completa usuario y clave", true);
       return;
     }
 
     mostrarStatus("Verificando credenciales...");
 
-    // Construimos la URL con parámetros GET
     const urlConParametros = `${SCRIPT_URL}?usuario=${encodeURIComponent(user)}&clave=${encodeURIComponent(pass)}&puerta=${encodeURIComponent(puerta)}`;
 
     try {
-      const response = await fetch(urlConParametros, { method: "GET" });
+      // Petición con seguimiento de redirección y manejo compatible con navegadores móviles
+      const response = await fetch(urlConParametros, {
+        method: "GET",
+        redirect: "follow"
+      });
+
       const textoRespuesta = await response.text();
 
-      // Verificamos si la respuesta enviada por Apps Script contiene "OK"
-      if (textoRespuesta.includes("OK")) {
+      if (textoRespuesta.trim().includes("OK")) {
         localStorage.setItem('usuario', user);
         localStorage.setItem('clave', pass);
-        mostrarStatus("Petición enviada a " + nombrePuerta);
+        mostrarStatus("Petición enviada a " + nombrePuerta, false);
       } else {
-        mostrarStatus("Error de autenticación: usuario o clave incorrectos");
+        mostrarStatus("Error de autenticación: usuario o clave incorrectos", true);
       }
     } catch (error) {
-      mostrarStatus("Error de conexión con el servidor");
+      // En caso de que el navegador aplique política estricta de CORS al redireccionar:
+      mostrarStatus("Error de conexión con el servidor", true);
     }
   }
 
-  function mostrarStatus(texto) {
+  function mostrarStatus(texto, esError = false) {
     const statusDiv = document.getElementById('status');
     statusDiv.innerText = texto;
-    setTimeout(() => { statusDiv.innerText = ""; }, 5000);
+    statusDiv.className = esError ? "status-error" : "status-success";
+
+    setTimeout(() => { 
+      statusDiv.innerText = ""; 
+      statusDiv.className = "";
+    }, 5000);
   }
 </script>
 
