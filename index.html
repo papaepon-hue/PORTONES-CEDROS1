@@ -123,9 +123,10 @@
   </div>
   
   <div class="btn-container">
-    <!-- Ajustado: Salida envía '1' y Entrada envía '2' -->
-    <button onclick="enviarComando('1', 'PORTON SALIDA')">PORTON SALIDA</button>
-    <button class="p2" onclick="enviarComando('2', 'PORTON ENTRADA')">PORTON ENTRADA</button>
+    <!-- PORTON ENTRADA envía '1' (Relé 1) -->
+    <button onclick="enviarComando('1', 'PORTON ENTRADA')">PORTON ENTRADA</button>
+    <!-- PORTON SALIDA envía '2' (Relé 2) -->
+    <button class="p2" onclick="enviarComando('2', 'PORTON SALIDA')">PORTON SALIDA</button>
   </div>
 
   <div id="status"></div>
